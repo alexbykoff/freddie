@@ -49,4 +49,9 @@ let log = [
     branch: "test 3",
     parent: "004"
   },
+  {
+    node: "010",
+    branch: "test 4",
+    parent: "001"
+  },
 ]

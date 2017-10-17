@@ -2,13 +2,13 @@ const svg = document.getElementById("vis");
 const svgNS = svg.namespaceURI;
 
 let shift = 0;
-let freeRow = 0;
+let freeRow = 1;
 const branches = {};
 
-const COMMIT_R = 8;
+const COMMIT_R = 7;
 const COMMIT_SPAN = 50;
-const BRANCH_SPAN = 30;
-const LINE_WIDTH = 5;
+const BRANCH_SPAN = 16;
+const LINE_WIDTH = 4;
 
 log.forEach((node, i) => {
     if (i !== 0 && node.branch === log[i - 1].branch) {
@@ -25,24 +25,39 @@ log.forEach((node, i) => {
 function createCommit(node) {
     shift++;
     const circle = make('circle');
-    const lastXPos = branches[node.branch].lastXPos;
+    const {
+        lastXPos,
+        row,
+        color
+    } = branches[node.branch];
     config(circle, {
         "cx": 25 + shift * COMMIT_SPAN,
-        "cy": branches[node.branch].row * BRANCH_SPAN,
+        "cy": row * BRANCH_SPAN,
         "r": COMMIT_R,
-        "fill": branches[node.branch].color,
+        "fill": color,
         "node": node.node,
         "branch": node.branch
     });
+
+    const text = make('text');
+    config(text, {
+        "x": 25 + shift * COMMIT_SPAN - COMMIT_R,
+        "y": 12,
+        "font-size": 10,
+        "font-family": "monospace"
+    })
+    text.innerHTML = node.node;
+    svg.appendChild(text);
+
     svg.appendChild(circle);
 
     const line = make('line');
     config(line, {
         "x1": 25 + shift * COMMIT_SPAN,
-        "y1": branches[node.branch].row * BRANCH_SPAN,
+        "y1": row * BRANCH_SPAN,
         "x2": lastXPos,
-        "y2": branches[node.branch].row * BRANCH_SPAN,
-        "stroke": branches[node.branch].color,
+        "y2": row * BRANCH_SPAN,
+        "stroke": color,
         "stroke-width": LINE_WIDTH
     })
     svg.appendChild(line);
@@ -51,7 +66,7 @@ function createCommit(node) {
 
 function createBranch(node) {
     freeRow++;
-    shift++
+    node.parent && shift++
     const x = node.parent ? 25 + shift * COMMIT_SPAN : 25;
     const y = freeRow * BRANCH_SPAN;
     branches[node.branch] = {
@@ -60,16 +75,32 @@ function createBranch(node) {
         lastXPos: x,
         lastYPos: y
     };
+
+    const {
+        lastXPos,
+        lastYPos,
+        row,
+        color
+    } = branches[node.branch];
     const circle = make('circle');
 
     config(circle, {
-        "cx": x,
-        "cy": y,
+        "cx": lastXPos,
+        "cy": lastYPos,
         "r": COMMIT_R,
-        "fill": branches[node.branch].color,
+        "fill": color,
         "node": node.node,
         "branch": node.branch
     });
+    const text = make('text');
+    config(text, {
+        "x": 25 + shift * COMMIT_SPAN - COMMIT_R,
+        "y": 12,
+        "font-size": 10,
+        "font-family": "monospace"
+    })
+    text.innerHTML = node.node;
+    svg.appendChild(text);
     svg.appendChild(circle);
     branches[node.branch].lastXPos = x;
     branches[node.branch].lastYPos = y;
@@ -81,7 +112,7 @@ function createBranch(node) {
         "y1": y,
         "x2": +getPositionOfParentNode(node.parent, "cx") + COMMIT_SPAN,
         "y2": y,
-        "stroke": branches[node.branch].color,
+        "stroke": color,
         "stroke-width": LINE_WIDTH
     })
     svg.appendChild(horizontalLine);
