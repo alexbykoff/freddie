@@ -54,7 +54,7 @@ function createBranch(node) {
     const y = freeRow * BRANCH_SPAN;
     branches[node.branch] = {
         row: freeRow,
-        color: '#'+Math.floor(Math.random()*16777215).toString(16),
+        color: '#' + Math.floor(Math.random() * 16777215).toString(16),
         lastXPos: x,
         lastYPos: y
     };
@@ -72,16 +72,7 @@ function createBranch(node) {
     branches[node.branch].lastXPos = x;
     branches[node.branch].lastYPos = y;
     shift++;
-    if (!node.parent) return
-    const path = make('path');
-    const p = branches[findParentBranch(node.parent)];
-    console.log(p)
-    config(path, {"d": `M${p.lastXPos},${p.lastYPos} C${p.lastXPos+25},${p.lastYPos} ${x-25},${y} ${x},${y}`,
-    "stroke": "#5498df",
-    "stroke-width": "3",
-    "fill": "transparent"
-});
-    svg.appendChild(path);
+    node.parent && createPath(node)
 }
 
 function config(element, props) {
@@ -90,12 +81,26 @@ function config(element, props) {
     });
 }
 
-function make(type){
+function make(type) {
     return document.createElementNS(svgNS, type);
 }
 
-function findParentBranch(node){
+function findParentBranch(node) {
     console.log("looking for " + node)
-    const parent = log.find(e=> e.node === node);
+    const parent = log.find(e => e.node === node);
     return parent.branch
+}
+
+function createPath(node) {
+    const path = make('path');
+    const x = branches[node.branch].lastXPos;
+    const y = branches[node.branch].lastYPos;
+    const p = branches[findParentBranch(node.parent)];
+    config(path, {
+        "d": `M${p.lastXPos},${p.lastYPos} C${p.lastXPos+COMMIT_SPAN/2},${p.lastYPos} ${x-COMMIT_SPAN/2},${y} ${x},${y}`,
+        "stroke": "#5498df",
+        "stroke-width": "3",
+        "fill": "transparent"
+    });
+    svg.appendChild(path);
 }
