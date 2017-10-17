@@ -28,7 +28,7 @@ function createCommit(node) {
         "cx": 25 + shift * COMMIT_SPAN,
         "cy": branches[node.branch].row * BRANCH_SPAN,
         "r": COMMIT_R,
-        "fill": "#5498df",
+        "fill": branches[node.branch].color,
         "node": node.node,
         "branch": node.branch
     });
@@ -40,7 +40,7 @@ function createCommit(node) {
         "y1": branches[node.branch].row * BRANCH_SPAN,
         "x2": lastXPos,
         "y2": branches[node.branch].row * BRANCH_SPAN,
-        "stroke": "#5498df",
+        "stroke": branches[node.branch].color,
         "stroke-width": "3"
     })
     svg.appendChild(line);
@@ -50,15 +50,21 @@ function createCommit(node) {
 
 function createBranch(node) {
     freeRow++;
-    branches[node.branch] = {row: freeRow};
-    const circle = make('circle');
     const x = 25 + shift * COMMIT_SPAN;
-    const y = branches[node.branch].row * BRANCH_SPAN;
+    const y = freeRow * BRANCH_SPAN;
+    branches[node.branch] = {
+        row: freeRow,
+        color: '#'+Math.floor(Math.random()*16777215).toString(16),
+        lastXPos: x,
+        lastYPos: y
+    };
+    const circle = make('circle');
+
     config(circle, {
         "cx": x,
         "cy": y,
         "r": COMMIT_R,
-        "fill": "#5498df",
+        "fill": branches[node.branch].color,
         "node": node.node,
         "branch": node.branch
     });
@@ -70,9 +76,10 @@ function createBranch(node) {
     const path = make('path');
     const p = branches[findParentBranch(node.parent)];
     console.log(p)
-    config(path, {"d": `M${p.lastXPos},${p.lastYPos} C${p.lastXPos},${p.lastYPos +20} ${x},${p.lastYPos +20} ${x},${y}`,
+    config(path, {"d": `M${p.lastXPos},${p.lastYPos} C${p.lastXPos+25},${p.lastYPos} ${x-25},${y} ${x},${y}`,
     "stroke": "#5498df",
-    "stroke-width": "3"
+    "stroke-width": "3",
+    "fill": "transparent"
 });
     svg.appendChild(path);
 }
