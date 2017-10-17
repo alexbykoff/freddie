@@ -5,10 +5,10 @@ let shift = 0;
 let freeRow = 1;
 const branches = {};
 
-const COMMIT_R = 7;
+const COMMIT_R = 8;
 const COMMIT_SPAN = 50;
 const BRANCH_SPAN = 16;
-const LINE_WIDTH = 4;
+const LINE_WIDTH = 5;
 
 log.forEach((node, i) => {
     if (i !== 0 && node.branch === log[i - 1].branch) {
@@ -67,7 +67,7 @@ function createCommit(node) {
 function createBranch(node) {
     freeRow++;
     node.parent && shift++
-    const x = node.parent ? 25 + shift * COMMIT_SPAN : 25;
+        const x = node.parent ? 25 + shift * COMMIT_SPAN : 25;
     const y = freeRow * BRANCH_SPAN;
     branches[node.branch] = {
         row: freeRow,
@@ -108,22 +108,22 @@ function createBranch(node) {
 
     const horizontalLine = make('line');
     config(horizontalLine, {
-        "x1": x,
+        "x1": x - COMMIT_R,
         "y1": y,
-        "x2": +getPositionOfParentNode(node.parent, "cx") + COMMIT_SPAN,
+        "x2": +getPositionOfParentNode(node.parent, "cx") + COMMIT_SPAN - COMMIT_R,
         "y2": y,
-        "stroke": color,
+        "stroke": branches[findParentBranch(node.parent)].color,
         "stroke-width": LINE_WIDTH
     })
     svg.appendChild(horizontalLine);
 
     const diagonalLine = make('line');
     config(diagonalLine, {
-        "x1": +getPositionOfParentNode(node.parent, "cx") + COMMIT_SPAN,
+        "x1": +getPositionOfParentNode(node.parent, "cx") + COMMIT_SPAN - COMMIT_R,
         "y1": y,
         "x2": +getPositionOfParentNode(node.parent, "cx"),
         "y2": +getPositionOfParentNode(node.parent, "cy"),
-        "stroke": branches[node.branch].color,
+        "stroke": branches[findParentBranch(node.parent)].color,
         "stroke-width": LINE_WIDTH
     })
     svg.appendChild(diagonalLine);
