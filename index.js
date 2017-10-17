@@ -51,7 +51,8 @@ function createCommit(node) {
 
 function createBranch(node) {
     freeRow++;
-    const x = node.parent ? branches[findParentBranch(node.parent)].lastXPos + COMMIT_SPAN : 25;
+    shift++
+    const x = node.parent ? 25 + shift * COMMIT_SPAN : 25;
     const y = freeRow * BRANCH_SPAN;
     branches[node.branch] = {
         row: freeRow,
@@ -72,8 +73,29 @@ function createBranch(node) {
     svg.appendChild(circle);
     branches[node.branch].lastXPos = x;
     branches[node.branch].lastYPos = y;
-    //shift++;
-    node.parent && createPath(node)
+    if (!node.parent) return;
+
+    const horizontalLine = make('line');
+    config(horizontalLine, {
+        "x1": x,
+        "y1": y,
+        "x2": +getPositionOfParentNode(node.parent, "cx") + COMMIT_SPAN,
+        "y2": y,
+        "stroke": branches[node.branch].color,
+        "stroke-width": LINE_WIDTH
+    })
+    svg.appendChild(horizontalLine);
+
+    const diagonalLine = make('line');
+    config(diagonalLine, {
+        "x1": +getPositionOfParentNode(node.parent, "cx") + COMMIT_SPAN,
+        "y1": y,
+        "x2": +getPositionOfParentNode(node.parent, "cx"),
+        "y2": +getPositionOfParentNode(node.parent, "cy"),
+        "stroke": branches[node.branch].color,
+        "stroke-width": LINE_WIDTH
+    })
+    svg.appendChild(diagonalLine);
 }
 
 function config(element, props) {
@@ -87,21 +109,11 @@ function make(type) {
 }
 
 function findParentBranch(node) {
-    const parent = log.find(e => e.node === node);
-    return parent.branch
+    return log.find(e => e.node === node).branch
 }
 
-function createPath(node) {
-    const path = make('path');
-    const b = branches[node.branch];
-    const x = b.lastXPos;
-    const y = b.lastYPos;
-    const p = branches[findParentBranch(node.parent)];
-    config(path, {
-        "d": `M${p.lastXPos},${p.lastYPos} C${p.lastXPos+COMMIT_SPAN/2},${p.lastYPos} ${x-COMMIT_SPAN/2},${y} ${x},${y}`,
-        "stroke": b.color,
-        "stroke-width": LINE_WIDTH,
-        "fill": "transparent"
-    });
-    svg.appendChild(path);
+function getPositionOfParentNode(node, attr) {
+    return [...document.querySelectorAll('circle')]
+        .find(e => e.getAttribute("node") === node)
+        .getAttribute(attr)
 }
