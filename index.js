@@ -1,8 +1,8 @@
 const svg = document.getElementById("vis");
 const svgNS = svg.namespaceURI;
 
-let shift = 0;
-let freeRow = 1;
+let revision = 0;
+let branchRow = 1;
 const branches = {};
 
 const COMMIT_R = 8;
@@ -11,7 +11,7 @@ const BRANCH_SPAN = 16;
 const LINE_WIDTH = 5;
 
 log.forEach((node, i) => {
-    if (i !== 0 && node.branch === log[i - 1].branch) {
+    if (node.parent && node.branch === log[i - 1].branch) {
         createCommit(node);
     } else {
         if (!branches[node.branch]) {
@@ -23,7 +23,7 @@ log.forEach((node, i) => {
 });
 
 function createCommit(node) {
-    shift++;
+    revision++;
     const circle = make('circle');
     const {
         lastXPos,
@@ -31,7 +31,7 @@ function createCommit(node) {
         color
     } = branches[node.branch];
     config(circle, {
-        "cx": 25 + shift * COMMIT_SPAN,
+        "cx": 25 + revision * COMMIT_SPAN,
         "cy": row * BRANCH_SPAN,
         "r": COMMIT_R,
         "fill": color,
@@ -41,19 +41,18 @@ function createCommit(node) {
 
     const text = make('text');
     config(text, {
-        "x": 25 + shift * COMMIT_SPAN - COMMIT_R,
+        "x": 25 + revision * COMMIT_SPAN - COMMIT_R,
         "y": 12,
         "font-size": 10,
         "font-family": "monospace"
     })
     text.innerHTML = node.node;
     svg.appendChild(text);
-
     svg.appendChild(circle);
 
     const line = make('line');
     config(line, {
-        "x1": 25 + shift * COMMIT_SPAN,
+        "x1": 25 + revision * COMMIT_SPAN,
         "y1": row * BRANCH_SPAN,
         "x2": lastXPos,
         "y2": row * BRANCH_SPAN,
@@ -61,19 +60,17 @@ function createCommit(node) {
         "stroke-width": LINE_WIDTH
     })
     svg.appendChild(line);
-    branches[node.branch].lastXPos = 25 + shift * COMMIT_SPAN;
+    branches[node.branch].lastXPos = 25 + revision * COMMIT_SPAN;
 }
 
 function createBranch(node) {
-    freeRow++;
-    node.parent && shift++
-        const x = node.parent ? 25 + shift * COMMIT_SPAN : 25;
-    const y = freeRow * BRANCH_SPAN;
+    branchRow++;
+    node.parent && revision++;
     branches[node.branch] = {
-        row: freeRow,
+        row: branchRow,
         color: '#' + Math.floor(Math.random() * 16777215).toString(16),
-        lastXPos: x,
-        lastYPos: y
+        lastXPos: node.parent ? 25 + revision * COMMIT_SPAN : 25,
+        lastYPos: branchRow * BRANCH_SPAN
     };
 
     const {
@@ -82,8 +79,8 @@ function createBranch(node) {
         row,
         color
     } = branches[node.branch];
-    const circle = make('circle');
 
+    const circle = make('circle');
     config(circle, {
         "cx": lastXPos,
         "cy": lastYPos,
@@ -92,9 +89,10 @@ function createBranch(node) {
         "node": node.node,
         "branch": node.branch
     });
+    
     const text = make('text');
     config(text, {
-        "x": 25 + shift * COMMIT_SPAN - COMMIT_R,
+        "x": 25 + revision * COMMIT_SPAN - COMMIT_R,
         "y": 12,
         "font-size": 10,
         "font-family": "monospace"
@@ -102,16 +100,17 @@ function createBranch(node) {
     text.innerHTML = node.node;
     svg.appendChild(text);
     svg.appendChild(circle);
-    branches[node.branch].lastXPos = x;
-    branches[node.branch].lastYPos = y;
+
     if (!node.parent) return;
 
     const horizontalLine = make('line');
+    const parentX = +getPositionOfParentNode(node.parent, "cx");
+    const parentY = +getPositionOfParentNode(node.parent, "cy");
     config(horizontalLine, {
-        "x1": x - COMMIT_R,
-        "y1": y,
-        "x2": +getPositionOfParentNode(node.parent, "cx") + COMMIT_SPAN - COMMIT_R,
-        "y2": y,
+        "x1": lastXPos - COMMIT_R,
+        "y1": lastYPos,
+        "x2": parentX + COMMIT_SPAN - COMMIT_R,
+        "y2": lastYPos,
         "stroke": branches[findParentBranch(node.parent)].color,
         "stroke-width": LINE_WIDTH
     })
@@ -119,10 +118,10 @@ function createBranch(node) {
 
     const diagonalLine = make('line');
     config(diagonalLine, {
-        "x1": +getPositionOfParentNode(node.parent, "cx") + COMMIT_SPAN - COMMIT_R,
-        "y1": y,
-        "x2": +getPositionOfParentNode(node.parent, "cx"),
-        "y2": +getPositionOfParentNode(node.parent, "cy"),
+        "x1": parentX + COMMIT_SPAN - COMMIT_R,
+        "y1": lastYPos,
+        "x2": parentX,
+        "y2": parentY,
         "stroke": branches[findParentBranch(node.parent)].color,
         "stroke-width": LINE_WIDTH
     })
@@ -136,7 +135,7 @@ function config(element, props) {
 }
 
 function make(type) {
-    return document.createElementNS(svgNS, type);
+    return document.createElementNS(svgNS, type)
 }
 
 function findParentBranch(node) {
