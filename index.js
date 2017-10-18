@@ -11,6 +11,7 @@ const COMMIT_R = 5;
 const COMMIT_SPAN = 30;
 const BRANCH_SPAN = 10;
 const LINE_WIDTH = 2;
+let textStep =1;
 
 svg.style.width = log.length * COMMIT_SPAN + 100 + "px";
 log.forEach((node, i) => {
@@ -99,7 +100,7 @@ function createBranch(node) {
         "x": 25 + revision * COMMIT_SPAN - COMMIT_R,
         "y": 12,
         "font-size": 10,
-        "font-family": "monospace"
+        "font-family": "monospace",
     })
     text.innerHTML = node.rev;
     svg.appendChild(text);
@@ -167,17 +168,25 @@ function createMergeLines(node){
     const {lastXPos, lastYPos, row, color} = branches[node.branch];
     if (!branches[node.branch].createdFromMerge) {
         const line = make('line');
-        //const line2 = make('line');
+        const line2 = make('line');
         config(line, {
-            "x1": lastXPos - COMMIT_R,
+            "x1": lastXPos- COMMIT_R,
             "y1": lastYPos,
             "x2": lastXPos - COMMIT_SPAN,
-            "y2": getAttrFromAnotherNode(node.parents[1], "cy"),
+            "y2": +getAttrFromAnotherNode(node.parents[1], "cy"),
+            "stroke": branches[getParentBranch(node.parents[1])].color,
+            "stroke-width": LINE_WIDTH
+        });
+        config(line2, {
+            "x1": lastXPos - COMMIT_SPAN,
+            "y1": +getAttrFromAnotherNode(node.parents[1], "cy"),
+            "x2": +getAttrFromAnotherNode(node.parents[1], "cx") + COMMIT_R,
+            "y2": +getAttrFromAnotherNode(node.parents[1], "cy"),
             "stroke": branches[getParentBranch(node.parents[1])].color,
             "stroke-width": LINE_WIDTH
         });
         svg.appendChild(line);
-        //console.log("new line @" + node.rev);
+        svg.appendChild(line2);
     }
 }
 
