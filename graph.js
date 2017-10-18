@@ -19,7 +19,10 @@ log.forEach(e => {
         branches[e.branch] = [e];
 });
 
+// Create branches and commits
 Object.values(branches).forEach(constructBranch);
+// Add new branch links
+Object.values(branches).forEach(createLinkToParentBranch);
 
 function constructBranch(branch) {
     const color = randomColor();
@@ -30,7 +33,7 @@ function constructBranch(branch) {
             // check if row is free at that revision, if not, check lower row
             row += 1;
         }
-        placeDot(col, row, branch, color);
+        placeTemporaryDot(col, row, branch, color);
         rows[row] = col;
         // store the column which row lasts to
     }
@@ -42,7 +45,13 @@ function constructBranch(branch) {
         .forEach(e => e.remove());
 }
 
-function placeDot(col, row, branch, fill) {
+function createLinkToParentBranch(branch) {
+    // ignore default branch
+    if (branch[0].rev === 0) return;
+
+}
+
+function placeTemporaryDot(col, row, branch, fill) {
     const dot = make('circle');
     const cx = COMMIT_SPAN + col * COMMIT_SPAN;
     const cy = BRANCH_SPAN + row * BRANCH_SPAN;
