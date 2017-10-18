@@ -3,12 +3,8 @@ const svgNS = svg.namespaceURI;
 
 log = log.reverse();
 
-let revision = 0;
-let branchRow = 1;
 const branches = {};
-
-let rows = [];
-
+const rows = [];
 const COMMIT_R = 6;
 const COMMIT_SPAN = 22;
 const BRANCH_SPAN = 20;
@@ -23,9 +19,9 @@ log.forEach(e => {
         branches[e.branch] = [e];
 });
 
-Object.values(branches).forEach((branch, branchIndex) => constructBranch(branch, branchIndex));
+Object.values(branches).forEach(constructBranch);
 
-function constructBranch(branch, branchIndex) {
+function constructBranch(branch) {
     const color = randomColor();
     for (let col = branch[0].rev; col <= branch[branch.length - 1].rev; col++) {
         // we plant dots from lower revision to higher (thru all the range, not only commits)
@@ -73,13 +69,14 @@ function createCommit(cx, cy, fill, commit) {
         fill,
         "r": COMMIT_R,
         branch: commit.branch,
-        node: commit.node
+        node: commit.node.slice(0, 6)
     });
     svg.appendChild(circle);
 }
 
 function drawLine(branch) {
-    const pool = [...document.querySelectorAll('circle')].filter(e => e.getAttribute("branch") === branch[0].branch);
+    const pool = [...document.querySelectorAll('circle')]
+        .filter(e => e.getAttribute("branch") === branch[0].branch);
     // pick all circles of one branch, connect with lines
     if (pool.length > 1) {
         for (let i = 0; i < pool.length - 1; i++) {
@@ -98,9 +95,7 @@ function drawLine(branch) {
 }
 
 function config(element, props) {
-    Object.keys(props).forEach(key => {
-        element.setAttributeNS(null, key, props[key]);
-    });
+    Object.keys(props).forEach(key => element.setAttributeNS(null, key, props[key]));
 }
 
 function make(type) {
