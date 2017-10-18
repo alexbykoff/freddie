@@ -18,6 +18,7 @@ const LINE_WIDTH = 2;
 svg.style.width = log.length * COMMIT_SPAN + 100 + "px";
 
 log.forEach(e => {
+    //normalize object to store as {branch: [commits]}
     branches[e.branch] ?
         branches[e.branch].push(e) :
         branches[e.branch] = [e];
@@ -30,16 +31,19 @@ function constructBranch(branch, branchIndex) {
     const color = randomColor();
 
     for (let col = branch[0].rev; col <= branch[branch.length-1].rev; col++) {
+        // we plant dots from lower revision to higher (thru all the range, not only commits)
         let row = 1;
         while (rows[row] > col+1) {
+        // check if row is free at that revision, if not, check lower row
             row++;
         }
         placeDot(col, row, branch, color);
         rows[row] = col;
-        row = 1;
+        // store the column which row lasts to
+
     }
     const pool = [...document.querySelectorAll('circle')].filter(e => e.getAttribute("branch") === branch[0].branch);
-    console.log(pool);
+    // pick all circles of one branch, connect with lines
     if (pool.length > 1) {
         for (i = 0; i < pool.length-1; i++) {
             const line = make('line');
