@@ -29,29 +29,27 @@ Object.values(branches).forEach((branch, branchIndex) => constructBranch(branch,
 
 function constructBranch(branch, branchIndex) {
     const color = randomColor();
-
-    for (let col = branch[0].rev; col <= branch[branch.length-1].rev; col++) {
+    for (let col = branch[0].rev; col <= branch[branch.length - 1].rev; col++) {
         // we plant dots from lower revision to higher (thru all the range, not only commits)
         let row = 1;
-        while (rows[row] > col+1) {
-        // check if row is free at that revision, if not, check lower row
-            row++;
+        while (rows[row] && rows[row] >= col) {
+            // check if row is free at that revision, if not, check lower row
+            row += 1;
         }
         placeDot(col, row, branch, color);
         rows[row] = col;
         // store the column which row lasts to
-
     }
     const pool = [...document.querySelectorAll('circle')].filter(e => e.getAttribute("branch") === branch[0].branch);
     // pick all circles of one branch, connect with lines
     if (pool.length > 1) {
-        for (i = 0; i < pool.length-1; i++) {
+        for (i = 0; i < pool.length - 1; i++) {
             const line = make('line');
             config(line, {
                 "x1": pool[i].getAttribute("cx"),
                 "y1": pool[i].getAttribute("cy"),
-                "x2": pool[i+1].getAttribute("cx"),
-                "y2": pool[i+1].getAttribute("cy"),
+                "x2": pool[i + 1].getAttribute("cx"),
+                "y2": pool[i + 1].getAttribute("cy"),
                 "stroke": "red",
                 "stroke-width": 2
             })
