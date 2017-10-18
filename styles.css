@@ -1,0 +1,7 @@
+#svg-wrapper {
+    width: 100%;
+    height: 400px;
+    overflow: scroll;
+    margin: 0;
+    padding: 0;
+}
