@@ -3,17 +3,16 @@ const svgNS = svg.namespaceURI;
 
 log = log.reverse();
 
-
 let revision = 0;
 let branchRow = 1;
 const branches = {};
 
 let rows = [];
 
-const COMMIT_R = 5;
-const COMMIT_SPAN = 15;
-const BRANCH_SPAN = 15;
-const LINE_WIDTH = 6;
+const COMMIT_R = 6;
+const COMMIT_SPAN = 22;
+const BRANCH_SPAN = 20;
+const LINE_WIDTH = 5;
 
 svg.style.width = log.length * COMMIT_SPAN + 100 + "px";
 
@@ -25,7 +24,6 @@ log.forEach(e => {
 });
 
 Object.values(branches).forEach((branch, branchIndex) => constructBranch(branch, branchIndex));
-
 
 function constructBranch(branch, branchIndex) {
     const color = randomColor();
@@ -40,6 +38,47 @@ function constructBranch(branch, branchIndex) {
         rows[row] = col;
         // store the column which row lasts to
     }
+    drawLine(branch);
+
+    // garbage collection
+    [...document.querySelectorAll('circle')]
+    .filter(e => e.getAttribute("type") === "temp")
+        .forEach(e => e.remove());
+}
+
+function placeDot(col, row, branch, fill) {
+    const dot = make('circle');
+    const cx = COMMIT_SPAN + col * COMMIT_SPAN;
+    const cy = BRANCH_SPAN + row * BRANCH_SPAN;
+    config(dot, {
+        cx,
+        cy,
+        r: 3,
+        fill,
+        branch: branch[0].branch,
+        type: "temp"
+    })
+    svg.appendChild(dot);
+    const commit = branch.find(e => e.rev === col)
+    if (commit) {
+        createCommit(cx, cy, fill, commit)
+    }
+}
+
+function createCommit(cx, cy, fill, commit) {
+    const circle = make('circle');
+    config(circle, {
+        cx,
+        cy,
+        fill,
+        "r": COMMIT_R,
+        branch: commit.branch,
+        node: commit.node
+    });
+    svg.appendChild(circle);
+}
+
+function drawLine(branch) {
     const pool = [...document.querySelectorAll('circle')].filter(e => e.getAttribute("branch") === branch[0].branch);
     // pick all circles of one branch, connect with lines
     if (pool.length > 1) {
@@ -57,32 +96,6 @@ function constructBranch(branch, branchIndex) {
         }
     }
 }
-
-function placeDot(col, row, branch, color) {
-    const dot = make('circle');
-    config(dot, {
-        "cx": COMMIT_SPAN + col * COMMIT_SPAN,
-        "cy": BRANCH_SPAN + row * BRANCH_SPAN,
-        "r": 3,
-        "fill": color,
-        "branch": branch[0].branch
-    })
-    svg.appendChild(dot);
-}
-
-
-function createCommit(commit, branchIndex, color) {
-    const circle = make('polyline');
-    config(circle, {
-        "cx": COMMIT_SPAN + commit.rev * COMMIT_SPAN,
-        "cy": BRANCH_SPAN + branchIndex * BRANCH_SPAN,
-        "fill": color,
-        "r": COMMIT_R
-    });
-    svg.appendChild(circle);
-}
-
-
 
 function config(element, props) {
     Object.keys(props).forEach(key => {
