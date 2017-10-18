@@ -13,7 +13,7 @@ const BRANCH_SPAN = 10;
 const LINE_WIDTH = 2;
 let textStep =1;
 
-svg.style.width = log.length * COMMIT_SPAN + 100 + "px";
+//svg.style.width = log.length * COMMIT_SPAN + 100 + "px";
 log.forEach((node, i) => {
     if (node.parents.length === 2) {
         return createMerge(node);
