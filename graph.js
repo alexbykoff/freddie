@@ -13,7 +13,7 @@ let rows = [];
 const COMMIT_R = 5;
 const COMMIT_SPAN = 15;
 const BRANCH_SPAN = 15;
-const LINE_WIDTH = 2;
+const LINE_WIDTH = 6;
 
 svg.style.width = log.length * COMMIT_SPAN + 100 + "px";
 
@@ -43,15 +43,15 @@ function constructBranch(branch, branchIndex) {
     const pool = [...document.querySelectorAll('circle')].filter(e => e.getAttribute("branch") === branch[0].branch);
     // pick all circles of one branch, connect with lines
     if (pool.length > 1) {
-        for (i = 0; i < pool.length - 1; i++) {
+        for (let i = 0; i < pool.length - 1; i++) {
             const line = make('line');
             config(line, {
                 "x1": pool[i].getAttribute("cx"),
                 "y1": pool[i].getAttribute("cy"),
                 "x2": pool[i + 1].getAttribute("cx"),
                 "y2": pool[i + 1].getAttribute("cy"),
-                "stroke": "red",
-                "stroke-width": 2
+                "stroke": pool[i].getAttribute("fill"),
+                "stroke-width": LINE_WIDTH
             })
             svg.appendChild(line);
         }
@@ -63,7 +63,7 @@ function placeDot(col, row, branch, color) {
     config(dot, {
         "cx": COMMIT_SPAN + col * COMMIT_SPAN,
         "cy": BRANCH_SPAN + row * BRANCH_SPAN,
-        "r": 4,
+        "r": 3,
         "fill": color,
         "branch": branch[0].branch
     })
