@@ -36,6 +36,7 @@ function createForks(branch) {
 }
 
 function connectCommits(parent, self) {
+    if (!parent || !self) return;
     console.log('connecting' + parent, ' ' + self);
     const from = make('line');
     config(from, {
@@ -46,7 +47,17 @@ function connectCommits(parent, self) {
         stroke: 'black',
         'stroke-width': 2,
     });
+    const to = make('line');
+    config(to, {
+        x1: +self.getAttribute('cx'),
+        y1: +parent.getAttribute('cy'),
+        x2: +self.getAttribute('cx'),
+        y2: +self.getAttribute('cy'),
+        stroke: 'black',
+        'stroke-width': 2,
+    });
     svg.appendChild(from);
+    svg.appendChild(to);
 }
 
 function findByNodeId(commitId) {
