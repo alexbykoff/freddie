@@ -2,7 +2,6 @@ const svg = document.getElementById('vis');
 const svgNS = svg.namespaceURI;
 
 const branches = {};
-const rows = [];
 const COMMIT_R = 5;
 const COMMIT_SPAN = 26;
 const BRANCH_SPAN = 12;
@@ -21,7 +20,7 @@ log.forEach(e => {
 });
 
 const sorts = log.map(revisionSpread).filter(byUniqueBranch);
-svg.style.width = sorts.length * BRANCH_SPAN + LEFT_OFFSET + 'px';
+svg.style.width = sorts.length * BRANCH_SPAN + LEFT_OFFSET + 100 + 'px';
 
 sorts.forEach(createLine);
 
@@ -32,7 +31,7 @@ function createMerges(commit) {
     if (commit.parents.length > 1) {
         const parent = findByNodeId(commit.parents[1]);
         const self = findByNodeId(commit.node);
-            const color = parent ? +parent.getAttribute('fill') : 'black';
+        const color = self.getAttribute('fill');
         connectCommits(parent, self, color);
     }
 }
@@ -46,25 +45,39 @@ function createForks(branch) {
 function connectCommits(parent, self, stroke) {
     if (!parent) return;
     const from = make('line');
+    const selfX = +self.getAttribute('cx');
+    const selfy = +self.getAttribute('cy');
+    const parentX = +parent.getAttribute('cx');
+    const parentY = +parent.getAttribute('cy');
+    const offset = parentX > selfX ? -COMMIT_R : COMMIT_R;
     config(from, {
-        x1: +parent.getAttribute('cx'),
-        y1: +parent.getAttribute('cy'),
-        x2: +self.getAttribute('cx'),
-        y2: +parent.getAttribute('cy'),
+        x1: parentX + offset,
+        y1: parentY,
+        x2: selfX,
+        y2: parentY,
         stroke,
         'stroke-width': 1,
     });
     const to = make('line');
     config(to, {
-        x1: +self.getAttribute('cx'),
-        y1: +parent.getAttribute('cy'),
-        x2: +self.getAttribute('cx'),
-        y2: +self.getAttribute('cy') + COMMIT_R,
+        x1: selfX,
+        y1: parentY,
+        x2: selfX,
+        y2: selfy + COMMIT_R,
         stroke,
         'stroke-width': 1,
     });
     svg.appendChild(from);
     svg.appendChild(to);
+
+    const arrow = make('polygon');
+    config(arrow, {
+        points: `${selfX},${selfy + COMMIT_R} ${selfX - 5},${selfy +
+            10 +
+            COMMIT_R} ${selfX + 5},${selfy + 10 + COMMIT_R}`,
+        fill: stroke,
+    });
+    svg.appendChild(arrow);
 }
 
 function findByNodeId(commitId) {
@@ -145,8 +158,6 @@ function createLine(branch, index) {
         svg.appendChild(text);
     });
 }
-
-function createLinkToParentBranch(branch) {}
 
 function config(element, props) {
     Object.keys(props).forEach(key =>
