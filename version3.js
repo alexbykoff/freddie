@@ -1,4 +1,4 @@
-const svg = document.getElementById("vis");
+const svg = document.getElementById('vis');
 const svgNS = svg.namespaceURI;
 
 const branches = {};
@@ -15,42 +15,38 @@ const upperCommit = log[0].rev;
 
 log.forEach(e => {
     //normalize object to store as {branch: [commits]}
-    branches[e.branch] ?
-        branches[e.branch].push(e) :
-        branches[e.branch] = [e];
+    branches[e.branch]
+        ? branches[e.branch].push(e)
+        : (branches[e.branch] = [e]);
 });
 
 console.log(branches);
 
-const sorts = log.map(findRevisionSpread)
+const sorts = log
+    .map(findRevisionSpread)
+    .filter((b, i) => log.findIndex(e => b.branch === e.branch) === i);
 
 console.log(sorts);
 
-
-
-
-function findRevisionSpread(b){
-    const revs = log.filter(commit => commit.branch === b.branch).map(commit => commit.rev);
-    const top =  (upperCommit - Math.max(...revs)) * COMMIT_SPAN
-    const bottom =  (upperCommit - Math.min(...revs)) * COMMIT_SPAN
-    const branch = b.branch
-        return({top, bottom, branch})
+function findRevisionSpread(b) {
+    const revs = log
+        .filter(commit => commit.branch === b.branch)
+        .map(commit => commit.rev);
+    const top = (upperCommit - Math.max(...revs)) * COMMIT_SPAN;
+    const bottom = (upperCommit - Math.min(...revs)) * COMMIT_SPAN;
+    const branch = b.branch;
+    return {
+        top,
+        bottom,
+        branch,
+    };
 }
 
+function constructBranch(branch) {}
 
-function constructBranch(branch) {
+function createLine(commit) {}
 
-}
-
-function createLine(commit){
-
-}
-
-function createLinkToParentBranch(branch) {
-
-
-}
-
+function createLinkToParentBranch(branch) {}
 
 function createCommit(cx, cy, fill, commit) {
     const circle = make('circle');
@@ -58,20 +54,21 @@ function createCommit(cx, cy, fill, commit) {
         cx,
         cy,
         fill,
-        "r": COMMIT_R,
+        r: COMMIT_R,
         branch: commit.branch,
-        node: commit.node.slice(0, 6)
+        node: commit.node.slice(0, 6),
     });
     svg.appendChild(circle);
 }
 
-
 function config(element, props) {
-    Object.keys(props).forEach(key => element.setAttributeNS(null, key, props[key]));
+    Object.keys(props).forEach(key =>
+        element.setAttributeNS(null, key, props[key]),
+    );
 }
 
 function make(type) {
-    return document.createElementNS(svgNS, type)
+    return document.createElementNS(svgNS, type);
 }
 
 function randomColor() {
