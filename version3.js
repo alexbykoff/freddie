@@ -19,15 +19,12 @@ log.forEach(e => {
         : (branches[e.branch] = [e]);
 });
 
-console.log(branches);
-
 const sorts = log.map(revisionSpread).filter(byUniqueBranch);
+svg.style.width = sorts.length * BRANCH_SPAN + 100 + 'px';
 
 sorts.forEach(createLine);
 
 Object.values(branches).forEach(createForks);
-
-console.log(sorts);
 
 function createForks(branch) {
     const parent = findByNodeId(branch.slice(-1)[0].parents[0]);
@@ -36,7 +33,7 @@ function createForks(branch) {
 }
 
 function connectCommits(parent, self) {
-    if (!parent || !self) return;
+    if (!parent) return;
     console.log('connecting' + parent, ' ' + self);
     const from = make('line');
     config(from, {
@@ -52,7 +49,7 @@ function connectCommits(parent, self) {
         x1: +self.getAttribute('cx'),
         y1: +parent.getAttribute('cy'),
         x2: +self.getAttribute('cx'),
-        y2: +self.getAttribute('cy')+ COMMIT_R,
+        y2: +self.getAttribute('cy') + COMMIT_R,
         stroke: parent.getAttribute('fill'),
         'stroke-width': 2,
     });
