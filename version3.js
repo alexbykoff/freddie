@@ -5,13 +5,13 @@ const branches = {};
 const rows = [];
 const COMMIT_R = 6;
 const COMMIT_SPAN = 22;
-const BRANCH_SPAN = 20;
+const BRANCH_SPAN = 18;
 const LINE_WIDTH = 5;
 
 let column = 1;
 const upperCommit = log[0].rev;
 
-// svg.style.width = log.length * COMMIT_SPAN + 100 + "px";
+svg.style.height = log.length * COMMIT_SPAN + 100 + 'px';
 
 log.forEach(e => {
     //normalize object to store as {branch: [commits]}
@@ -25,6 +25,8 @@ console.log(branches);
 const sorts = log
     .map(findRevisionSpread)
     .filter((b, i) => log.findIndex(e => b.branch === e.branch) === i);
+
+sorts.forEach(createLine);
 
 console.log(sorts);
 
@@ -44,7 +46,18 @@ function findRevisionSpread(b) {
 
 function constructBranch(branch) {}
 
-function createLine(commit) {}
+function createLine(branch, index) {
+    const line = make('line');
+    config(line, {
+        x1: BRANCH_SPAN + index * BRANCH_SPAN,
+        y1: branch.top,
+        x2: BRANCH_SPAN + index * BRANCH_SPAN,
+        y2: branch.bottom,
+        'stroke-width': LINE_WIDTH,
+        stroke: 'red',
+    });
+    svg.appendChild(line);
+}
 
 function createLinkToParentBranch(branch) {}
 
