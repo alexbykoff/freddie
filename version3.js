@@ -44,7 +44,7 @@ function connectCommits(parent, self) {
         y1: +parent.getAttribute('cy'),
         x2: +self.getAttribute('cx'),
         y2: +parent.getAttribute('cy'),
-        stroke: 'black',
+        stroke: parent.getAttribute('fill'),
         'stroke-width': 2,
     });
     const to = make('line');
@@ -53,7 +53,7 @@ function connectCommits(parent, self) {
         y1: +parent.getAttribute('cy'),
         x2: +self.getAttribute('cx'),
         y2: +self.getAttribute('cy'),
-        stroke: 'black',
+        stroke: parent.getAttribute('fill'),
         'stroke-width': 2,
     });
     svg.appendChild(from);
