@@ -47,16 +47,29 @@ function findRevisionSpread(b) {
 function constructBranch(branch) {}
 
 function createLine(branch, index) {
+    const x = BRANCH_SPAN + index * BRANCH_SPAN;
     const line = make('line');
     config(line, {
-        x1: BRANCH_SPAN + index * BRANCH_SPAN,
+        x1: x,
         y1: branch.top,
-        x2: BRANCH_SPAN + index * BRANCH_SPAN,
+        x2: x,
         y2: branch.bottom,
         'stroke-width': LINE_WIDTH,
         stroke: 'red',
+        branch: branch.branch,
     });
     svg.appendChild(line);
+    branches[branch.branch].forEach(commit => {
+        const circle = make('circle');
+        config(circle, {
+            cx: x,
+            cy: (upperCommit - commit.rev) * COMMIT_SPAN,
+            r: COMMIT_R,
+            fill: 'red',
+        });
+        svg.appendChild(circle)
+    });
+
 }
 
 function createLinkToParentBranch(branch) {}
