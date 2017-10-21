@@ -31,17 +31,17 @@ function createMerges(commit) {
     if (commit.parents.length > 1){
         const parent = findByNodeId(commit.parents[1]);
         const self = findByNodeId(commit.node);
-        connectCommits(parent, self);
+        connectCommits(parent, self, "red");
     }
 }
 
 function createForks(branch) {
     const parent = findByNodeId(branch.slice(-1)[0].parents[0]);
     const self = findByNodeId(branch.slice(-1)[0].node);
-    connectCommits(parent, self);
+    connectCommits(parent, self, "green");
 }
 
-function connectCommits(parent, self) {
+function connectCommits(parent, self, stroke) {
     if (!parent) return;
     const from = make('line');
     config(from, {
@@ -49,7 +49,7 @@ function connectCommits(parent, self) {
         y1: +parent.getAttribute('cy'),
         x2: +self.getAttribute('cx'),
         y2: +parent.getAttribute('cy'),
-        stroke: parent.getAttribute('fill'),
+        stroke,
         'stroke-width': 1,
     });
     const to = make('line');
@@ -58,7 +58,7 @@ function connectCommits(parent, self) {
         y1: +parent.getAttribute('cy'),
         x2: +self.getAttribute('cx'),
         y2: +self.getAttribute('cy') + COMMIT_R,
-        stroke: parent.getAttribute('fill'),
+        stroke,
         'stroke-width': 1,
     });
     svg.appendChild(from);
