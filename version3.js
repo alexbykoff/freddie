@@ -52,7 +52,7 @@ function connectCommits(parent, self) {
         x1: +self.getAttribute('cx'),
         y1: +parent.getAttribute('cy'),
         x2: +self.getAttribute('cx'),
-        y2: +self.getAttribute('cy'),
+        y2: +self.getAttribute('cy')+ COMMIT_R,
         stroke: parent.getAttribute('fill'),
         'stroke-width': 2,
     });
