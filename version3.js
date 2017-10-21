@@ -3,10 +3,11 @@ const svgNS = svg.namespaceURI;
 
 const branches = {};
 const rows = [];
-const COMMIT_R = 6;
-const COMMIT_SPAN = 24;
-const BRANCH_SPAN = 14;
+const COMMIT_R = 5;
+const COMMIT_SPAN = 26;
+const BRANCH_SPAN = 12;
 const LINE_WIDTH = 4;
+const LEFT_OFFSET = 50;
 
 let column = 1;
 const upperCommit = log[0].rev;
@@ -20,7 +21,7 @@ log.forEach(e => {
 });
 
 const sorts = log.map(revisionSpread).filter(byUniqueBranch);
-svg.style.width = sorts.length * BRANCH_SPAN + 100 + 'px';
+svg.style.width = sorts.length * BRANCH_SPAN + LEFT_OFFSET + 'px';
 
 sorts.forEach(createLine);
 
@@ -28,17 +29,18 @@ Object.values(branches).forEach(createForks);
 log.forEach(createMerges);
 
 function createMerges(commit) {
-    if (commit.parents.length > 1){
+    if (commit.parents.length > 1) {
         const parent = findByNodeId(commit.parents[1]);
         const self = findByNodeId(commit.node);
-        connectCommits(parent, self, "red");
+            const color = parent ? +parent.getAttribute('fill') : 'black';
+        connectCommits(parent, self, color);
     }
 }
 
 function createForks(branch) {
     const parent = findByNodeId(branch.slice(-1)[0].parents[0]);
     const self = findByNodeId(branch.slice(-1)[0].node);
-    connectCommits(parent, self, "green");
+    connectCommits(parent, self, 'green');
 }
 
 function connectCommits(parent, self, stroke) {
@@ -93,7 +95,7 @@ function revisionSpread(b) {
 function constructBranch(branch) {}
 
 function createLine(branch, index) {
-    const x = BRANCH_SPAN + index * BRANCH_SPAN;
+    const x = LEFT_OFFSET + index * BRANCH_SPAN;
     const color = randomColor();
     if (branch.top !== branch.bottom) {
         const line = make('line');
@@ -108,7 +110,7 @@ function createLine(branch, index) {
         });
         svg.appendChild(line);
     }
-    branches[branch.branch].forEach(commit => {
+    branches[branch.branch].forEach((commit, i) => {
         const circle = make('circle');
         config(circle, {
             cx: x,
@@ -117,10 +119,30 @@ function createLine(branch, index) {
             fill: color,
             node: commit.node.slice(0, 6),
             branch: branch.branch,
-            stroke: "black",
-            "stroke-width": 1
+            stroke: 'black',
+            'stroke-width': 1,
         });
         svg.appendChild(circle);
+        if (i === 0) {
+            const text = make('text');
+            text.innerHTML = branch.branch;
+            config(text, {
+                x: x + BRANCH_SPAN,
+                y: COMMIT_SPAN + (upperCommit - commit.rev) * COMMIT_SPAN,
+                'font-size': 12,
+                'font-family': 'monospace',
+            });
+            svg.appendChild(text);
+        }
+        const text = make('text');
+        text.innerHTML = commit.rev;
+        config(text, {
+            x: 2,
+            y: COMMIT_SPAN + (upperCommit - commit.rev) * COMMIT_SPAN,
+            'font-size': 12,
+            'font-family': 'monospace',
+        });
+        svg.appendChild(text);
     });
 }
 
