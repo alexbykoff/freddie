@@ -4,9 +4,9 @@ const svgNS = svg.namespaceURI;
 const branches = {};
 const rows = [];
 const COMMIT_R = 6;
-const COMMIT_SPAN = 22;
-const BRANCH_SPAN = 18;
-const LINE_WIDTH = 5;
+const COMMIT_SPAN = 24;
+const BRANCH_SPAN = 14;
+const LINE_WIDTH = 4;
 
 let column = 1;
 const upperCommit = log[0].rev;
@@ -25,6 +25,15 @@ svg.style.width = sorts.length * BRANCH_SPAN + 100 + 'px';
 sorts.forEach(createLine);
 
 Object.values(branches).forEach(createForks);
+log.forEach(createMerges);
+
+function createMerges(commit) {
+    if (commit.parents.length > 1){
+        const parent = findByNodeId(commit.parents[1]);
+        const self = findByNodeId(commit.node);
+        connectCommits(parent, self);
+    }
+}
 
 function createForks(branch) {
     const parent = findByNodeId(branch.slice(-1)[0].parents[0]);
@@ -34,7 +43,6 @@ function createForks(branch) {
 
 function connectCommits(parent, self) {
     if (!parent) return;
-    console.log('connecting' + parent, ' ' + self);
     const from = make('line');
     config(from, {
         x1: +parent.getAttribute('cx'),
@@ -42,7 +50,7 @@ function connectCommits(parent, self) {
         x2: +self.getAttribute('cx'),
         y2: +parent.getAttribute('cy'),
         stroke: parent.getAttribute('fill'),
-        'stroke-width': 2,
+        'stroke-width': 1,
     });
     const to = make('line');
     config(to, {
@@ -51,7 +59,7 @@ function connectCommits(parent, self) {
         x2: +self.getAttribute('cx'),
         y2: +self.getAttribute('cy') + COMMIT_R,
         stroke: parent.getAttribute('fill'),
-        'stroke-width': 2,
+        'stroke-width': 1,
     });
     svg.appendChild(from);
     svg.appendChild(to);
@@ -109,6 +117,8 @@ function createLine(branch, index) {
             fill: color,
             node: commit.node.slice(0, 6),
             branch: branch.branch,
+            stroke: "black",
+            "stroke-width": 1
         });
         svg.appendChild(circle);
     });
