@@ -23,7 +23,7 @@ log.forEach(e => {
         ? branches[e.branch].push(e)
         : (branches[e.branch] = [e]);
 });
-//log = log.slice(0,LIMIT);
+log = log.slice(0,LIMIT);
 const sorts = log.map(revisionSpread).filter(byUniqueBranch);
 svg.style.width = sorts.length * BRANCH_SPAN + LEFT_OFFSET + 100 + "px";
 
